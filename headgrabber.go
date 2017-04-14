@@ -4,21 +4,37 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"os"
+	"strings"
 )
 
 func main() {
-	url := "http://www.amazon.com/"
-	timeout := time.Duration(5 * time.Second)
-	client := http.Client{
-		Timeout: timeout,
-	}
+	if 2 == len(os.Args) {
+		// Get url from command line args
+		url := os.Args[1]
 
-	res, err := client.Head(url)
-	if err != nil {
-		log.Fatal(err)
-	}
+		log.Println("URL set to: " + url)
 
-	for k, v := range res.Header {
-		log.Println(k+":", v)
+		// Retrieve url data
+		log.Println("Retrieving url data...")
+		client := http.Client{
+			Timeout: time.Duration(5 * time.Second),
+		}
+
+		res, err := client.Head(url)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Print status code
+		log.Printf("Status code:\t%d\n", res.StatusCode)
+
+		// Print headers
+		log.Println("Start printing headers...")
+		for key, value := range res.Header {
+			log.Println("\t" + key + ": " + strings.Join(value, ","))
+		}
+	} else {
+		log.Printf("Usage: %s <url>\n", os.Args[0])
 	}
 }
